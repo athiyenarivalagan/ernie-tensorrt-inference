@@ -1,1 +1,25 @@
 .gitattributes
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore ONNX and model files
+*.onnx
+*.pt
+*.pth
+*.ckpt
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+
+# Editor and system files
+.DS_Store
+*.swp
+*.bak
+
+# Virtual environments and env files
+.env
+*.env
+venv/
+.gitattributes
