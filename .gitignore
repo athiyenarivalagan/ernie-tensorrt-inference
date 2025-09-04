@@ -5,7 +5,7 @@ __pycache__/
 *.pyd
 
 # Jupyter
-*.ipynb_checkpoints/
+.ipynb_checkpoints/
 test.ipynb
 
 # Results and plots
