@@ -1,25 +1,25 @@
-.gitattributes
-
-# Ignore Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# Ignore ONNX and model files
-*.onnx
-*.pt
-*.pth
-*.ckpt
-
-# Python cache and bytecode
+# Python
 __pycache__/
-*.py[cod]
+*.pyc
+*.pyo
+*.pyd
 
-# Editor and system files
+# Jupyter
+*.ipynb_checkpoints/
+test.ipynb
+
+# Results and plots
+results/
+results/plots/
+
+# Build artifacts from plugins
+plugins/layernorm/*.o
+plugins/layernorm/*.so
+plugins/layernorm/*.cu.obj
+plugins/layernorm/build/
+plugins/layernorm/dist/
+plugins/layernorm/*.egg-info/
+
+# OS files
 .DS_Store
-*.swp
-*.bak
-
-# Virtual environments and env files
-.env
-*.env
-venv/
-.gitattributes
+Thumbs.db

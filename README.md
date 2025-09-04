@@ -1,3 +1,4 @@
-# ERNIE TensorRT Inference
+# Ernie TensorRT Inference
 
-This project demonstrates how to accelerate inference for Baidu’s ERNIE model (a BERT-style transformer) using NVIDIA TensorRT. By optimizing transformer layers and fusing QKV projections, the implementation achieves significantly reduced latency and memory usage, making it suitable for deployment in real-time NLP systems.
+## Description
+This repository provides an optimized inference pipeline for the ERNIE language model using PyTorch and TensorRT. It includes scripts for exporting to ONNX, graph optimizations, and benchmarking on CPU/GPU. Custom fused LayerNorm operations are included for improved performance on GPU.
