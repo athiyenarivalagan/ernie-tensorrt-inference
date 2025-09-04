@@ -1,6 +1,6 @@
 # --- Export to ONNX if requested ---
 # if args.export_onnx:
-#     print("🔄 Exporting optimized model to ONNX...")
+#     print("Exporting optimized model to ONNX...")
 
 #     model_opt.eval()
 #     sample_batch = next(iter(val_loader))
@@ -25,4 +25,4 @@
 #         do_constant_folding=True,
 #         opset_version=14
 #     )
-#     print("✅ ONNX export completed successfully!")
+#     print("ONNX export completed successfully!")
