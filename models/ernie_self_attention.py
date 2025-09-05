@@ -52,6 +52,7 @@ class ErnieSelfAttention(nn.Module):
         attention_mask: Optional[torch.FloatTensor] = None,
         head_mask: Optional[torch.FloatTensor] = None,
         encoder_hidden_states: Optional[torch.FloatTensor] = None,
+        # ----- Manually Added past_key_values because unable to import deprecate_kwarg -----
         past_key_value: Optional[Cache] = None, # accepts old keyword
         past_key_values: Optional[Cache] = None,
         output_attentions: Optional[bool] = False,
@@ -70,7 +71,7 @@ class ErnieSelfAttention(nn.Module):
         is_cross_attention = encoder_hidden_states is not None
         is_updated = False # ensure defined
 
-        # ----- Removed intermediate allocations/copies -----
+        # ----- Removed intermediate allocations -----
         if pkv is not None:
             if isinstance(pkv, EncoderDecoderCache):
                 is_updated = pkv.is_updated.get(self.layer_idx)
@@ -78,17 +79,17 @@ class ErnieSelfAttention(nn.Module):
             else:
                 curr_past_key_value = pkv
 
-            # ----- Each step creates new "curr_past_key_values" -----
-            # if past_key_values is not None:
-            # if isinstance(past_key_values, EncoderDecoderCache):
-            #     is_updated = past_key_values.is_updated.get(self.layer_idx)
-            #     if is_cross_attention:
-            #         # after the first generated id, we can subsequently re-use all key/value_layer from cache
-            #         curr_past_key_value = past_key_values.cross_attention_cache
-            #     else:
-            #         curr_past_key_value = past_key_values.self_attention_cache
-            # else:
-            #     curr_past_key_value = past_key_values
+        # ----- Each step creates new "curr_past_key_values" -----
+        # if past_key_values is not None:
+        # if isinstance(past_key_values, EncoderDecoderCache):
+        #     is_updated = past_key_values.is_updated.get(self.layer_idx)
+        #     if is_cross_attention:
+        #         # after the first generated id, we can subsequently re-use all key/value_layer from cache
+        #         curr_past_key_value = past_key_values.cross_attention_cache
+        #     else:
+        #         curr_past_key_value = past_key_values.self_attention_cache
+        # else:
+        #     curr_past_key_value = past_key_values
 
         # ----- QKV computation -----
         # current_states = encoder_hidden_states if is_cross_attention else hidden_states (moved to the else statement)
@@ -132,7 +133,7 @@ class ErnieSelfAttention(nn.Module):
         # Take the dot product between "query" and "key" to get the raw attention scores.
         # attention_scores = torch.matmul(query_layer, key_layer.transpose(-1, -2))
 
-        # ----- Relative Position Embedding (could make more improvements) -----
+        # ----- Relative Position Embedding (could make more improvements to this section) -----
         # if self.position_embedding_type == "relative_key" or self.position_embedding_type == "relative_key_query":
         if self.position_embedding_type in ("relative_key", "relative_key_query"):
             query_length, key_length = query_layer.shape[2], key_layer.shape[2]
@@ -159,9 +160,11 @@ class ErnieSelfAttention(nn.Module):
         # attention_scores = attention_scores / math.sqrt(self.attention_head_size)
 
         # ----- Fused Add + Softmax + Mixed Precision -----
-        # Do you add attention_mask before converting to float32 or after?
+        # Add the attention mask after converting attention_scores to float32.
+        # This ensures numerical stability in the softmax computation,
+        # especially when the mask contains large negative (like -1e9) that could underflow in float16.
         if attention_mask is not None:
-            attention_probs = F.softmax((attention_scores.to(torch.float32) + attention_mask), dim=-1)\
+            attention_probs = F.softmax((attention_scores.to(torch.float32) + attention_mask.to(torch.float32)), dim=-1)\
                               .to(attention_scores.dtype)
         else:
             attention_probs = F.softmax(attention_scores.to(torch.float32), dim=-1)\

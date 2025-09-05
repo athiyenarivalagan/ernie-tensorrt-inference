@@ -22,8 +22,12 @@ class ErnieEmbeddings(nn.Module):
         # position_ids (1, len position emb) is contiguous in memory and exported when serialized
         self.position_embedding_type = getattr(config, "position_embedding_type", "absolute")
         
-        self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)), persistent=False)
-        self.register_buffer("token_type_ids", torch.zeros(self.position_ids.size(), dtype=torch.long), persistent=False)
+        self.register_buffer(
+            "position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)), persistent=False
+        )
+        self.register_buffer(
+            "token_type_ids", torch.zeros(self.position_ids.size(), dtype=torch.long), persistent=False
+        )
         # ----- Yet to implement the following modifications -----
         # self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).unsqueeze(0), persistent=False)
         # self.register_buffer("token_type_ids", torch.zeros(1, config.max_position_embeddings, dtype=torch.long), persistent=False)
